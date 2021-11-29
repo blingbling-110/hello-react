@@ -1,4 +1,5 @@
 .App {
+  height: 100%;
   text-align: center;
 }
 
@@ -15,7 +16,7 @@
 
 .App-header {
   background-color: #282c34;
-  min-height: 100vh;
+  height: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -35,4 +36,15 @@
   to {
     transform: rotate(360deg);
   }
+}
+
+.app-wrapper {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.tab-view {
+  flex: 1;
 }
