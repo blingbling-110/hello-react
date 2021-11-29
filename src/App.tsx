@@ -2,26 +2,15 @@ import logo from './logo.svg';
 import './App.css';
 import TabCtrl from './components/TabCtrl'
 import { Component } from 'react'
+import NavBar from './components/NavBar'
 
 interface IAppState {
   currView: JSX.Element
 }
 
 export default class App extends Component<any, IAppState> {
-  tabContents: JSX.Element[];
-
-  constructor (props: object) {
-    super(props)
-
-    this.state = {
-      currView: this.defApp
-    }
-
-    this.tabContents = [this.defApp, <h2>customApp</h2>]
-  }
-
   private defApp = (
-    <div className="App">
+    <div className="App page-view">
       <header className="App-header">
         <img src={logo} className="App-logo" alt="logo"/>
         <p>
@@ -39,14 +28,33 @@ export default class App extends Component<any, IAppState> {
     </div>
   )
 
+  private tabContents: JSX.Element[] = [
+    <div className="tab-view">
+      <NavBar/>
+      {this.defApp}
+    </div>,
+    <div className="tab-view">
+      <NavBar leftSlot={<span>customLeft</span>}
+              centerSlot={<span>customCenter</span>}
+              rightSlot={<span>customRight</span>}/>
+      <h2 className="page-view">customApp</h2>
+    </div>
+  ]
+
+  constructor (props: object) {
+    super(props)
+
+    this.state = {
+      currView: this.tabContents[0]
+    }
+  }
+
   render () {
     const { currView } = this.state
 
     return (
       <div className="app-wrapper">
-        <div className="tab-view">
-          {currView}
-        </div>
+        {currView}
         <TabCtrl tabTitles={['缺省', '自定义']} chgView={index => this.chgView(index)}/>
       </div>
     )

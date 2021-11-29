@@ -1,0 +1,9 @@
+$nav-height: 2.5rem;
+
+.nav-bar {
+  width: 100%;
+  height: $nav-height;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
