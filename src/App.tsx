@@ -3,6 +3,7 @@ import './App.css';
 import TabCtrl from './components/TabCtrl'
 import { Component } from 'react'
 import NavBar from './components/NavBar'
+import ContextEx from './components/ContextEx'
 
 interface IAppState {
   currView: JSX.Element
@@ -37,7 +38,7 @@ export default class App extends Component<any, IAppState> {
       <NavBar leftSlot={<span>customLeft</span>}
               centerSlot={<span>customCenter</span>}
               rightSlot={<span>customRight</span>}/>
-      <h2 className="page-view">customApp</h2>
+      <ContextEx className="page-view"/>
     </div>
   ]
 
