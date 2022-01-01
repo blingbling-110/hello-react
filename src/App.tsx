@@ -1,9 +1,9 @@
 import logo from './logo.svg';
-import './App.css';
+import './App.scss';
 import TabCtrl from './components/TabCtrl'
 import { Component } from 'react'
 import NavBar from './components/NavBar'
-import ContextEx from './components/ContextEx'
+import Custom from './components/Custom'
 
 interface IAppState {
   currView: JSX.Element
@@ -11,7 +11,7 @@ interface IAppState {
 
 export default class App extends Component<any, IAppState> {
   private defApp = (
-    <div className="App page-view">
+    <div className="App">
       <header className="App-header">
         <img src={logo} className="App-logo" alt="logo"/>
         <p>
@@ -38,7 +38,7 @@ export default class App extends Component<any, IAppState> {
       <NavBar leftSlot={<span>customLeft</span>}
               centerSlot={<span>customCenter</span>}
               rightSlot={<span>customRight</span>}/>
-      <ContextEx className="page-view"/>
+      <Custom/>
     </div>
   ]
 
@@ -56,7 +56,7 @@ export default class App extends Component<any, IAppState> {
     return (
       <div className="app-wrapper">
         {currView}
-        <TabCtrl tabTitles={['缺省', '自定义']} chgView={index => this.chgView(index)}/>
+        <TabCtrl tabTitles={['默认', '自定义']} chgView={index => this.chgView(index)}/>
       </div>
     )
   }

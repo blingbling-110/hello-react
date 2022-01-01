@@ -1,4 +1,4 @@
-$tab-height: 2.5rem;
+@import "../../index";
 
 .tab-control {
   width: 100%;
@@ -8,6 +8,8 @@ $tab-height: 2.5rem;
   align-items: center;
   user-select: none;
   font-size: 1.2rem;
+  background-color: $tab-bg-color;
+  color: $font-color;
 }
 
 .tab-item {
