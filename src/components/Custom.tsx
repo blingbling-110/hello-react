@@ -1,9 +1,19 @@
-import React, { Component, createRef, memo, PureComponent, RefObject } from 'react'
+import React, { createRef, memo, PureComponent, RefObject } from 'react'
+import { EventEmitter } from "events";
 
 interface ICustomState {
   name: string,
   depth: number,
-  msg: string
+  msg: string,
+  friends: Array<{
+    id: number,
+    name: string,
+    age: number
+  }>,
+  username: string,
+  password: string,
+  captcha: string,
+  fruit: string
 }
 
 function SubCom (props: { msg: string }) {
@@ -20,7 +30,9 @@ const Context2 = React.createContext({
   depth: -2
 })
 
-export default class Custom extends Component<any, ICustomState> {
+const eventBus = new EventEmitter()
+
+export default class Custom extends PureComponent<any, ICustomState> {
   private readonly btnEl: RefObject<HTMLButtonElement>
 
   constructor (props: any) {
@@ -28,7 +40,28 @@ export default class Custom extends Component<any, ICustomState> {
     this.state = {
       name: 'from top',
       depth: 0,
-      msg: 'Hello, state!'
+      msg: 'Hello, state!',
+      friends: [
+        {
+          id: 0,
+          name: 'lilei',
+          age: 20
+        },
+        {
+          id: 1,
+          name: 'lily',
+          age: 25
+        },
+        {
+          id: 2,
+          name: 'lucy',
+          age: 22
+        }
+      ],
+      username: '',
+      password: '',
+      captcha: '',
+      fruit: 'apple'
     }
     this.btnEl = createRef()
   }
@@ -36,6 +69,52 @@ export default class Custom extends Component<any, ICustomState> {
   render () {
     return (
       <div>
+        <form onSubmit={evt => this.submitHandler(evt)}>
+          <label htmlFor="username">用户名：
+            <input type="text" id={'username'} name={'username'}
+                   onChange={evt => this.formHandler(evt)}
+                   value={this.state.username}/>
+          </label>
+          <br/>
+          <label htmlFor="password">密码：
+            <input type="password" id={'password'} name={'password'}
+                   onChange={evt => this.formHandler(evt)}
+                   value={this.state.password}/>
+          </label>
+          <br/>
+          <label htmlFor="captcha">验证码：
+            <input type="text" id={'captcha'} name={'captcha'}
+                   onChange={evt => this.formHandler(evt)}
+                   value={this.state.captcha}/>
+          </label>
+          <br/>
+          <label htmlFor="fruit">水果：
+            <select name="fruit" id="fruit"
+                    onChange={evt => this.formHandler(evt)}
+                    value={this.state.fruit}>
+              <option value="apple">苹果</option>
+              <option value="banana">香蕉</option>
+              <option value="orange">橘子</option>
+            </select>
+          </label>
+          <input type="submit" value={'提交'}/>
+        </form>
+
+        <hr/>
+        <Home/>
+        <Profile/>
+
+        <hr/>
+        <button onClick={() => this.insertFriend()}>添加新数据</button>
+        <ul>
+          {this.state.friends.map(friend =>
+            <li key={friend.id}>
+              姓名：{friend.name}，年龄：{friend.age}
+              <button onClick={() => this.grow(friend.id)}>年龄+1</button>
+            </li>)}
+        </ul>
+
+        <hr/>
         <h2>state: {JSON.stringify(this.state)}</h2>
         <button onClick={() => this.chgState()}>更新</button>
         <SubCom msg={this.state.msg}/>
@@ -87,7 +166,7 @@ export default class Custom extends Component<any, ICustomState> {
   }
 
   componentDidUpdate (prevProps: Readonly<any>, prevState: Readonly<ICustomState>, snapshot?: any) {
-    console.log('componentDidUpdate', this.state.msg)
+    // console.log('componentDidUpdate', this.state.msg)
   }
 
   componentDidMount () {
@@ -115,6 +194,49 @@ export default class Custom extends Component<any, ICustomState> {
         msg: state.msg + '+'
       }
     })
+  }
+
+  private insertFriend () {
+    const friends = this.state.friends
+    this.setState({
+      friends: [...friends, {
+        id: friends.length,
+        name: 'tom',
+        age: 24
+      }]
+    })
+  }
+
+  private grow (id: number) {
+    this.setState({
+      friends: this.state.friends.map(friend => {
+        return {
+          id: friend.id,
+          name: friend.name,
+          age: friend.id === id ? friend.age + 1 : friend.age
+        }
+      })
+    })
+  }
+
+  private submitHandler (evt: React.FormEvent<HTMLFormElement>) {
+    evt.preventDefault()
+    console.log(
+      this.state.username,
+      this.state.password,
+      this.state.captcha,
+      this.state.fruit
+    )
+  }
+
+  private formHandler (evt: React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLSelectElement>) {
+    this.setState({
+      [evt.target.name]: evt.target.value
+    } as Pick<ICustomState,
+      'username' |
+      'password' |
+      'captcha' |
+      'fruit'>)
   }
 }
 
@@ -145,7 +267,7 @@ class ClassChild extends PureComponent<any, any> {
 ClassChild.contextType = Context1
 
 function FunctionChild () {
-  console.log('FunctionChild.render()')
+  // console.log('FunctionChild.render()')
   return (
     <Context2.Consumer>
       {
@@ -159,4 +281,38 @@ function FunctionChild () {
       }
     </Context2.Consumer>
   )
+}
+
+class Home extends PureComponent {
+  render () {
+    return (
+      <div>
+        <button onClick={() => eventBus.emit('homeEvt', 'from Home', 'emitted')}>Home</button>
+      </div>
+    )
+  }
+}
+
+class Profile extends PureComponent {
+  btnEl: HTMLButtonElement | null = null
+
+  render () {
+    return (
+      <div>
+        <button ref={el => this.btnEl = el} onClick={() => console.log(this.btnEl)}>Profile</button>
+      </div>
+    )
+  }
+
+  private static homeEvtHandler (...args: any[]) {
+    console.log('Profile接收到homeEvt: ', args)
+  }
+
+  componentDidMount () {
+    eventBus.addListener('homeEvt', Profile.homeEvtHandler)
+  }
+
+  componentWillUnmount () {
+    eventBus.removeListener('homeEvt', Profile.homeEvtHandler)
+  }
 }
