@@ -1,4 +1,4 @@
-import React, { createRef, memo, PureComponent, RefObject } from 'react'
+import React, { Component, createRef, memo, PureComponent, RefObject } from 'react'
 import { EventEmitter } from "events";
 
 interface ICustomState {
@@ -32,7 +32,7 @@ const Context2 = React.createContext({
 
 const eventBus = new EventEmitter()
 
-export default class Custom extends PureComponent<any, ICustomState> {
+class Custom extends PureComponent<any, ICustomState> {
   private readonly btnEl: RefObject<HTMLButtonElement>
 
   constructor (props: any) {
@@ -69,6 +69,9 @@ export default class Custom extends PureComponent<any, ICustomState> {
   render () {
     return (
       <div>
+        <h1>{this.props.name}</h1>
+
+        <hr/>
         <form onSubmit={evt => this.submitHandler(evt)}>
           <label htmlFor="username">用户名：
             <input type="text" id={'username'} name={'username'}
@@ -79,7 +82,8 @@ export default class Custom extends PureComponent<any, ICustomState> {
           <label htmlFor="password">密码：
             <input type="password" id={'password'} name={'password'}
                    onChange={evt => this.formHandler(evt)}
-                   value={this.state.password}/>
+                   value={this.state.password}
+                   autoComplete={'off'}/>
           </label>
           <br/>
           <label htmlFor="captcha">验证码：
@@ -316,3 +320,24 @@ class Profile extends PureComponent {
     eventBus.removeListener('homeEvt', Profile.homeEvtHandler)
   }
 }
+
+// function enhanceClassCom (InnerCom: typeof Component) {
+//   const WrappedCom = class extends PureComponent<any, any> {
+//     render () {
+//       return <InnerCom {...this.props}/>
+//     }
+//   }
+//   Object.assign(WrappedCom, { displayName: `Wrapped${InnerCom.name}` })
+//   return WrappedCom
+// }
+
+function enhanceFuncCom (InnerCom: typeof Component) {
+  function WrappedCom (props: any) {
+    return <InnerCom {...props}/>
+  }
+
+  Object.assign(WrappedCom, { displayName: `Wrapped${InnerCom.name}` })
+  return WrappedCom
+}
+
+export default enhanceFuncCom(Custom)

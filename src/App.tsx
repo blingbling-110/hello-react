@@ -38,11 +38,11 @@ export default class App extends Component<any, IAppState> {
       <NavBar leftSlot={<span>customLeft</span>}
               centerSlot={<span>customCenter</span>}
               rightSlot={<span>customRight</span>}/>
-      <Custom/>
+      <Custom name={'自定义'}/>
     </div>
   ]
 
-  constructor (props: object) {
+  constructor (props: any) {
     super(props)
 
     this.state = {
