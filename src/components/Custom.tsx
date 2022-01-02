@@ -1,4 +1,4 @@
-import React, { Component, createRef, memo, PureComponent, RefObject } from 'react'
+import React, { Component, createRef, FunctionComponent, memo, PureComponent, RefObject } from 'react'
 import { EventEmitter } from "events";
 
 interface ICustomState {
@@ -31,6 +31,91 @@ const Context2 = React.createContext({
 })
 
 const eventBus = new EventEmitter()
+
+class Home extends PureComponent<any> {
+  render () {
+    return (
+      <div>
+        <button onClick={() => eventBus.emit('homeEvt', 'from Home', 'emitted')}>Home</button>
+        <p>{`区域：${this.props.region}，otherName: ${this.props.otherName}，depth: ${this.props.depth}`}</p>
+      </div>
+    )
+  }
+}
+
+class Profile extends PureComponent<any> {
+  btnEl: HTMLButtonElement | null = null
+
+  render () {
+    return (
+      <div>
+        <button ref={el => this.btnEl = el} onClick={() => console.log(this.btnEl)}>Profile</button>
+        <p>{`区域：${this.props.region}，otherName: ${this.props.otherName}，depth: ${this.props.depth}`}</p>
+      </div>
+    )
+  }
+
+  private static homeEvtHandler (...args: any[]) {
+    console.log('Profile接收到homeEvt: ', args)
+  }
+
+  componentDidMount () {
+    eventBus.addListener('homeEvt', Profile.homeEvtHandler)
+  }
+
+  componentWillUnmount () {
+    eventBus.removeListener('homeEvt', Profile.homeEvtHandler)
+  }
+}
+
+const EnhancedHome = enhanceClassCom(withRenderTime(Home))
+const EnhancedProfile = enhanceClassCom(withRenderTime(Profile))
+
+function CartPage () {
+  return <h2>CartPage</h2>
+}
+
+function LoginPage () {
+  return <h2>LoginPage</h2>
+}
+
+function withAuth (InnerCom: typeof Component | FunctionComponent) {
+  const WrappedCom = (props: any) => {
+    if (props.isLogin) {
+      return <InnerCom {...props}/>
+    } else {
+      return <LoginPage {...props}/>
+    }
+  }
+  Object.assign(WrappedCom, { displayName: `AuthedCom` })
+  return WrappedCom
+}
+
+const AuthCartPage = withAuth(CartPage)
+
+function withRenderTime (InnerCom: typeof Component | FunctionComponent) {
+   const WrappedCom = class extends PureComponent {
+    private readonly begin: number
+
+    private end: number = 0
+
+    constructor (props: any) {
+      super(props)
+      this.begin = Date.now()
+    }
+
+    render () {
+      return <InnerCom {...this.props}/>
+    }
+
+    componentDidMount () {
+      this.end = Date.now()
+      console.log(`${InnerCom.name}渲染事件：${this.end - this.begin}ms`)
+    }
+  }
+  Object.assign(WrappedCom, { displayName: `RenderTimeCom` })
+  return WrappedCom
+}
 
 class Custom extends PureComponent<any, ICustomState> {
   private readonly btnEl: RefObject<HTMLButtonElement>
@@ -70,6 +155,7 @@ class Custom extends PureComponent<any, ICustomState> {
     return (
       <div>
         <h1>{this.props.name}</h1>
+        <AuthCartPage isLogin={true}/>
 
         <hr/>
         <form onSubmit={evt => this.submitHandler(evt)}>
@@ -105,8 +191,13 @@ class Custom extends PureComponent<any, ICustomState> {
         </form>
 
         <hr/>
-        <Home/>
-        <Profile/>
+        <Context2.Provider value={{
+          otherName: '高阶组件共享',
+          depth: 3
+        }}>
+          <EnhancedHome/>
+          <EnhancedProfile/>
+        </Context2.Provider>
 
         <hr/>
         <button onClick={() => this.insertFriend()}>添加新数据</button>
@@ -287,51 +378,18 @@ function FunctionChild () {
   )
 }
 
-class Home extends PureComponent {
-  render () {
-    return (
-      <div>
-        <button onClick={() => eventBus.emit('homeEvt', 'from Home', 'emitted')}>Home</button>
-      </div>
-    )
+function enhanceClassCom (InnerCom: typeof Component | FunctionComponent,) {
+  const WrappedCom = class extends PureComponent<any, any> {
+    render () {
+      return <InnerCom {...this.props} region={'China'} {...this.context}/>
+    }
   }
+  WrappedCom.contextType = Context2
+  Object.assign(WrappedCom, { displayName: `RegionContext2${InnerCom.name}` })
+  return WrappedCom
 }
 
-class Profile extends PureComponent {
-  btnEl: HTMLButtonElement | null = null
-
-  render () {
-    return (
-      <div>
-        <button ref={el => this.btnEl = el} onClick={() => console.log(this.btnEl)}>Profile</button>
-      </div>
-    )
-  }
-
-  private static homeEvtHandler (...args: any[]) {
-    console.log('Profile接收到homeEvt: ', args)
-  }
-
-  componentDidMount () {
-    eventBus.addListener('homeEvt', Profile.homeEvtHandler)
-  }
-
-  componentWillUnmount () {
-    eventBus.removeListener('homeEvt', Profile.homeEvtHandler)
-  }
-}
-
-// function enhanceClassCom (InnerCom: typeof Component) {
-//   const WrappedCom = class extends PureComponent<any, any> {
-//     render () {
-//       return <InnerCom {...this.props}/>
-//     }
-//   }
-//   Object.assign(WrappedCom, { displayName: `Wrapped${InnerCom.name}` })
-//   return WrappedCom
-// }
-
-function enhanceFuncCom (InnerCom: typeof Component) {
+function enhanceFuncCom (InnerCom: typeof Component | FunctionComponent) {
   function WrappedCom (props: any) {
     return <InnerCom {...props}/>
   }
