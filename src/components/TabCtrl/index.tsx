@@ -1,5 +1,6 @@
 import { Component } from 'react'
-import './index.scss'
+import { TabCtrlWrapper } from './style'
+// import './index.scss'
 
 interface ITabProps {
   tabTitles: string[],
@@ -23,13 +24,13 @@ export default class TabCtrl extends Component<ITabProps, ITabState> {
     const { currIndex } = this.state
 
     return (
-      <div className="tab-control">
+      <TabCtrlWrapper>
         {
           this.props.tabTitles.map((tabTitle, index) =>
             <div key={index} className={`tab-item ${index === currIndex ? 'active' : ''}`}
                  onClick={() => this.chgTab(index)}>{tabTitle}</div>)
         }
-      </div>
+      </TabCtrlWrapper>
     )
   }
 

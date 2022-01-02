@@ -10,6 +10,7 @@ import React, {
 } from 'react'
 import { EventEmitter } from "events";
 import { Modal } from './Modal';
+import styled, { ThemeProvider } from "styled-components";
 
 interface ICustomState {
   name: string,
@@ -127,6 +128,30 @@ function withRenderTime (InnerCom: typeof Component | FunctionComponent) {
   return WrappedCom
 }
 
+const StyledInput = styled.input.attrs({
+  placeholder: '请填写密码',
+  borderColor: 'yellow'
+})`
+  background-color: pink;
+  border-color: ${props => props.borderColor};
+  
+  &:focus {
+    outline-color: ${props => props.color};
+  }
+`
+
+const StyledBtn = styled.button`
+  padding: 8px 30px;
+  border-radius: 5px;
+  color: ${props => props.theme.color};
+`
+
+const StyledWarnBtn = styled(StyledBtn)`
+  background-color: red;
+  color: #fff;
+  font-size: ${props => props.theme.fontSize};
+`
+
 class Custom extends PureComponent<any, ICustomState> {
   private readonly btnEl: RefObject<HTMLButtonElement>
   private readonly midComEl: RefObject<HTMLDivElement>
@@ -167,6 +192,15 @@ class Custom extends PureComponent<any, ICustomState> {
     return (
       <div>
         <h1>{this.props.name}</h1>
+        <StyledInput type={'password'} color={'red'}/>
+        <ThemeProvider theme={{
+          color: 'red',
+          fontSize: '18px'
+        }}>
+          <StyledBtn>StyledBtn</StyledBtn>
+          <StyledWarnBtn>StyledWarnBtn</StyledWarnBtn>
+        </ThemeProvider>
+
         <Modal>
           <h2>modal</h2>
         </Modal>
