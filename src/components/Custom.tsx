@@ -1,5 +1,15 @@
-import React, { Component, createRef, FunctionComponent, memo, PureComponent, RefObject } from 'react'
+import React, {
+  Component,
+  createRef,
+  ForwardedRef,
+  forwardRef, Fragment,
+  FunctionComponent,
+  memo,
+  PureComponent,
+  RefObject
+} from 'react'
 import { EventEmitter } from "events";
+import { Modal } from './Modal';
 
 interface ICustomState {
   name: string,
@@ -35,10 +45,10 @@ const eventBus = new EventEmitter()
 class Home extends PureComponent<any> {
   render () {
     return (
-      <div>
+      <Fragment>
         <button onClick={() => eventBus.emit('homeEvt', 'from Home', 'emitted')}>Home</button>
         <p>{`区域：${this.props.region}，otherName: ${this.props.otherName}，depth: ${this.props.depth}`}</p>
-      </div>
+      </Fragment>
     )
   }
 }
@@ -48,10 +58,10 @@ class Profile extends PureComponent<any> {
 
   render () {
     return (
-      <div>
+      <>
         <button ref={el => this.btnEl = el} onClick={() => console.log(this.btnEl)}>Profile</button>
         <p>{`区域：${this.props.region}，otherName: ${this.props.otherName}，depth: ${this.props.depth}`}</p>
-      </div>
+      </>
     )
   }
 
@@ -94,7 +104,7 @@ function withAuth (InnerCom: typeof Component | FunctionComponent) {
 const AuthCartPage = withAuth(CartPage)
 
 function withRenderTime (InnerCom: typeof Component | FunctionComponent) {
-   const WrappedCom = class extends PureComponent {
+  const WrappedCom = class extends PureComponent {
     private readonly begin: number
 
     private end: number = 0
@@ -119,6 +129,7 @@ function withRenderTime (InnerCom: typeof Component | FunctionComponent) {
 
 class Custom extends PureComponent<any, ICustomState> {
   private readonly btnEl: RefObject<HTMLButtonElement>
+  private readonly midComEl: RefObject<HTMLDivElement>
 
   constructor (props: any) {
     super(props)
@@ -149,12 +160,18 @@ class Custom extends PureComponent<any, ICustomState> {
       fruit: 'apple'
     }
     this.btnEl = createRef()
+    this.midComEl = createRef()
   }
 
   render () {
     return (
       <div>
         <h1>{this.props.name}</h1>
+        <Modal>
+          <h2>modal</h2>
+        </Modal>
+
+        <hr/>
         <AuthCartPage isLogin={true}/>
 
         <hr/>
@@ -217,7 +234,7 @@ class Custom extends PureComponent<any, ICustomState> {
         <button onClick={() => this.merge()}>合并</button>
 
         <hr/>
-        <MiddleCom/>
+        <MiddleCom ref={this.midComEl}/>
 
         <hr/>
         <Context1.Provider value={this.state}>
@@ -271,6 +288,7 @@ class Custom extends PureComponent<any, ICustomState> {
       })
       console.log('dom', this.state.msg)
     })
+    console.log(this.btnEl.current, this.midComEl.current)
   }
 
   private merge () {
@@ -337,14 +355,14 @@ class Custom extends PureComponent<any, ICustomState> {
 
 const MemoFunctionChild = memo(FunctionChild)
 
-function MiddleCom () {
+const MiddleCom = forwardRef(function (props, ref: ForwardedRef<HTMLDivElement>) {
   return (
-    <div>
+    <div ref={ref}>
       <ClassChild/>
       <MemoFunctionChild/>
     </div>
   )
-}
+})
 
 class ClassChild extends PureComponent<any, any> {
   render () {
