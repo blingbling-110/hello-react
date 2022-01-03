@@ -9,7 +9,6 @@ import React, {
   RefObject
 } from 'react'
 import { EventEmitter } from "events";
-import { Modal } from './Modal';
 import styled, { ThemeProvider } from "styled-components";
 
 interface ICustomState {
@@ -201,9 +200,9 @@ class Custom extends PureComponent<any, ICustomState> {
           <StyledWarnBtn>StyledWarnBtn</StyledWarnBtn>
         </ThemeProvider>
 
-        <Modal>
-          <h2>modal</h2>
-        </Modal>
+        {/*<Modal>*/}
+        {/*  <h2 style={{ color: fontColor }}>modal</h2>*/}
+        {/*</Modal>*/}
 
         <hr/>
         <AuthCartPage isLogin={true}/>

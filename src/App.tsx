@@ -4,10 +4,40 @@ import TabCtrl from './components/TabCtrl'
 import { Component } from 'react'
 import NavBar from './components/NavBar'
 import Custom from './components/Custom'
+import styled from "styled-components";
+import { AntD } from "./components/AntD";
+import { bgColor, fontColor, tabHeight } from "./components/TabCtrl/style";
 
 interface IAppState {
   currView: JSX.Element
 }
+
+const AppWrapper = styled.div`
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+
+  & > div:first-child {
+    max-height: calc(100% - ${tabHeight});
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+
+    & > *:last-child {
+      max-height: calc(100% - ${tabHeight});
+      flex: 1;
+      overflow: auto;
+      background-color: ${bgColor};
+      color: ${fontColor};
+    }
+
+    // 避免antd的影响
+    & h1, & h2, & h3 {
+      color: ${fontColor};
+    }
+  }
+`
 
 export default class App extends Component<any, IAppState> {
   private defApp = (
@@ -30,16 +60,19 @@ export default class App extends Component<any, IAppState> {
   )
 
   private tabContents: JSX.Element[] = [
-    <div className="tab-view">
+    <>
       <NavBar/>
       {this.defApp}
-    </div>,
-    <div className="tab-view">
+    </>,
+    <>
       <NavBar leftSlot={<span>customLeft</span>}
               centerSlot={<span>customCenter</span>}
               rightSlot={<span>customRight</span>}/>
       <Custom name={'自定义'}/>
-    </div>
+    </>,
+    <>
+      <AntD/>
+    </>
   ]
 
   constructor (props: any) {
@@ -51,13 +84,13 @@ export default class App extends Component<any, IAppState> {
   }
 
   render () {
-    const { currView } = this.state
-
     return (
-      <div className="app-wrapper">
-        {currView}
-        <TabCtrl tabTitles={['默认', '自定义']} chgView={index => this.chgView(index)}/>
-      </div>
+      <AppWrapper>
+        <div className={'tab-view'}>
+          {this.state.currView}
+        </div>
+        <TabCtrl tabTitles={['默认', '自定义', 'antd']} chgView={(index: number) => this.chgView(index)}/>
+      </AppWrapper>
     )
   }
 
