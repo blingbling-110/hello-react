@@ -2,8 +2,9 @@ import { PureComponent } from "react";
 import { Button, DatePicker, Space } from 'antd';
 import { PoweroffOutlined } from '@ant-design/icons';
 import moment from "moment";
-import { CommentItem } from "./CommentItem";
-import { CommentInput, ICommentInfo } from "./CommentInput";
+import { CommentItem } from "./Comment/CommentItem";
+import { CommentInput, ICommentInfo } from "./Comment/CommentInput";
+import request, { requestAll } from "../service/Ajax";
 
 interface IAntDState {
   loadings: boolean[],
@@ -92,5 +93,58 @@ export class AntD extends PureComponent<any, IAntDState> {
     this.setState({
       commentInfos: restCommentInfos
     })
+  }
+
+  async componentDidMount () {
+    // request({
+    //   url: '/get',
+    //   params: {
+    //     name: 'blingbling',
+    //     age: 18
+    //   }
+    // }).then(console.log)
+    //   .catch(console.error)
+    // request({
+    //   url: '/post',
+    //   data: {
+    //     name: 'blingbling',
+    //     age: 18
+    //   },
+    //   method: 'post'
+    // }).then(console.log)
+    //   .catch(console.error)
+
+    try {
+      const res = await request.post('/post', {
+        name: 'blingbling',
+        age: 18
+      })
+      console.log(res)
+    } catch (e) {
+      console.error(e)
+    }
+
+    const request1 = request.get('/get', {
+      params: {
+        name: 'blingbling',
+        age: 18
+      }
+    })
+    const request2 = request.post('/post', {
+      name: 'blingbling',
+      age: 18
+    })
+
+    requestAll([request1, request2])
+      .then(console.log)
+      .catch(console.error)
+
+    request.get('/get', {
+      params: {
+        name: 'blingbling',
+        age: 18
+      }
+    }).then(console.log)
+      .catch(console.error)
   }
 }

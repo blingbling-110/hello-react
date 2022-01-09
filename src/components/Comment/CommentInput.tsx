@@ -17,7 +17,7 @@ export class CommentInput extends PureComponent<{ addComment: (info: ICommentInf
 
   render () {
     return (
-      <div style={{ width: '500px' }}>
+      <div style={{ width: '400px' }}>
         <Input.TextArea rows={4} value={this.state.content} onChange={event => this.setState({
           content: event.target.value
         })}/>

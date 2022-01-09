@@ -4,6 +4,7 @@ import './index.scss';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import 'antd/dist/antd.dark.less'
+import 'moment/locale/zh-cn'
 
 ReactDOM.render(
   <React.StrictMode>
