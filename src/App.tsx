@@ -1,12 +1,13 @@
-import logo from './logo.svg';
-import './App.scss';
+import logo from './logo.svg'
+import './App.scss'
 import TabCtrl from './components/TabCtrl'
 import { Component } from 'react'
 import NavBar from './components/NavBar'
 import Custom from './components/Custom'
-import styled from "styled-components";
-import { AntD } from "./components/AntD";
-import { bgColor, fontColor, tabHeight } from "./components/TabCtrl/style";
+import styled from 'styled-components'
+import { AntD } from './components/AntD'
+import { bgColor, fontColor, tabHeight } from './components/TabCtrl/style'
+import Redux from './components/Redux'
 
 interface IAppState {
   currView: JSX.Element
@@ -32,7 +33,7 @@ const AppWrapper = styled.div`
       color: ${fontColor};
     }
 
-    // 避免antd的影响
+    // 避免AntD的影响
     & h1, & h2, & h3 {
       color: ${fontColor};
     }
@@ -70,16 +71,15 @@ export default class App extends Component<any, IAppState> {
               rightSlot={<span>customRight</span>}/>
       <Custom name={'自定义'}/>
     </>,
-    <>
-      <AntD/>
-    </>
+    <AntD/>,
+    <Redux/>
   ]
 
   constructor (props: any) {
     super(props)
 
     this.state = {
-      currView: this.tabContents[0]
+      currView: this.tabContents[0],
     }
   }
 
@@ -89,14 +89,14 @@ export default class App extends Component<any, IAppState> {
         <div className={'tab-view'}>
           {this.state.currView}
         </div>
-        <TabCtrl tabTitles={['默认', '自定义', 'antd']} chgView={(index: number) => this.chgView(index)}/>
+        <TabCtrl tabTitles={['默认', '自定义', 'AntD', 'Redux']} chgView={(index: number) => this.chgView(index)}/>
       </AppWrapper>
     )
   }
 
   chgView (index: number) {
     this.setState({
-      currView: this.tabContents[index]
+      currView: this.tabContents[index],
     })
   }
 }

@@ -1,0 +1,11 @@
+const INCREMENT = Symbol('INCREMENT')
+const DECREMENT = Symbol('DECREMENT')
+const ADD_NUMBER = Symbol('ADD_NUMBER')
+const SUB_NUMBER = Symbol('SUB_NUMBER')
+
+export {
+  INCREMENT,
+  DECREMENT,
+  ADD_NUMBER,
+  SUB_NUMBER,
+}
