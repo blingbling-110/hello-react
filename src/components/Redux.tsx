@@ -1,16 +1,14 @@
 import { Button } from 'antd'
 import { connect } from 'react-redux'
-import {
-  addAction,
-  decAction,
-  getHomeMultiDataAction,
-  incAction,
-  subAction,
-} from '../store/actionCreators'
 import { useEffect } from 'react'
+import { addAction, decAction, incAction, subAction } from '../store/counter/actionCreator'
+import { fetchDataAction, getHomeMultiDataAction } from '../store/home/actionCreator'
 
 function Home (props: any) {
-  useEffect(() => props.getHomeMultiData(),
+  useEffect(() => {
+      props.getHomeMultiData()
+      props.fetchData()
+    },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [],
   )
@@ -25,11 +23,12 @@ function Home (props: any) {
   )
 }
 
-const WrappedHome = connect((state: any) => ({ counter: state.counter }),
+const WrappedHome = connect((state: any) => ({ counter: state.counterInfo.counter }),
   (dispatch: any) => ({
     incAction: () => dispatch(incAction()),
     addAction: (num: number) => dispatch(addAction(num)),
     getHomeMultiData: () => dispatch(getHomeMultiDataAction()),
+    fetchData: () => dispatch(fetchDataAction())
   }))(Home)
 
 function About (props: any) {
@@ -56,9 +55,9 @@ function About (props: any) {
 }
 
 const WrappedAbout = connect((state: any) => ({
-    counter: state.counter,
-    banner: state.banner,
-    recommend: state.recommend,
+    counter: state.counterInfo.counter,
+    banner: state.homeInfo.banner,
+    recommend: state.homeInfo.recommend,
   }),
   (dispatch: any) => ({
     decAction: () => dispatch(decAction()),
