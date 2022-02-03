@@ -8,6 +8,7 @@ import styled from 'styled-components'
 import { AntD } from './components/AntD'
 import { bgColor, fontColor, tabHeight } from './components/TabCtrl/style'
 import Redux from './components/Redux'
+import Router from './components/Router'
 
 interface IAppState {
   currView: JSX.Element
@@ -72,7 +73,8 @@ export default class App extends Component<any, IAppState> {
       <Custom name={'自定义'}/>
     </>,
     <AntD/>,
-    <Redux/>
+    <Redux/>,
+    <Router/>
   ]
 
   constructor (props: any) {
@@ -89,7 +91,7 @@ export default class App extends Component<any, IAppState> {
         <div className={'tab-view'}>
           {this.state.currView}
         </div>
-        <TabCtrl tabTitles={['默认', '自定义', 'AntD', 'Redux']} chgView={(index: number) => this.chgView(index)}/>
+        <TabCtrl tabTitles={['默认', '自定义', 'AntD', 'Redux', 'Router']} chgView={(index: number) => this.chgView(index)}/>
       </AppWrapper>
     )
   }
