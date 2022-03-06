@@ -1,12 +1,23 @@
-import { Button } from 'antd'
-import { createContext, memo, useCallback, useContext, useEffect, useMemo, useReducer, useState } from 'react'
+import { Button, Input } from 'antd'
+import {
+  createContext, ForwardedRef,
+  forwardRef,
+  memo,
+  useCallback,
+  useContext,
+  useEffect,
+  useImperativeHandle, useLayoutEffect,
+  useMemo,
+  useReducer,
+  useRef,
+  useState,
+} from 'react'
 
 const UserCtx = createContext<{ name: string } | null>(null)
 const ThemeCtx = createContext<{ color: string } | null>(null)
 
 function Inner () {
-  const user = useContext(UserCtx)
-  const theme = useContext(ThemeCtx)
+  const { user, theme } = useCtx()
 
   return (
     <>
@@ -36,9 +47,47 @@ const Btn = memo((props: {
 })
 
 const Info = memo((props: { info: { content: string } }) => {
+  useLoggingLife('Info')
   console.log('info渲染')
   return <p>{props.info.content}</p>
 })
+
+const HYInput = forwardRef((props, ref: ForwardedRef<{ focus: () => any }>) => {
+  useLoggingLife('HYInput')
+  const innerRef = useRef<Input>(null)
+  useImperativeHandle(ref, () => ({ focus: () => innerRef.current && innerRef.current.focus() }))
+  return <Input style={{ width: '200px' }} ref={innerRef}/>
+})
+
+function useLoggingLife (name: string) {
+  useEffect(() => {
+    console.log(`${name}已创建`)
+    return () => console.log(`${name}将被销毁`)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+}
+
+function useCtx () {
+  const user = useContext(UserCtx)
+  const theme = useContext(ThemeCtx)
+  return { user, theme }
+}
+
+function usePageY () {
+  const [pageY, setPageY] = useState(0)
+  useEffect(() => {
+    const handleMousemove = (event: MouseEvent) => setPageY(event.pageY)
+    document.addEventListener('mousedown', handleMousemove)
+    return () => document.removeEventListener('mousedown', handleMousemove)
+  }, [])
+  return pageY
+}
+
+function useLocalStorage (key: string) {
+  const [data, setData] = useState(() => JSON.parse(String(window.localStorage.getItem(key))) || 'null')
+  useEffect(() => window.localStorage.setItem('data', JSON.stringify(data)), [data])
+  return [data, setData]
+}
 
 export default function Hooks () {
   const [counter, setCounter] = useState(0)
@@ -57,12 +106,30 @@ export default function Hooks () {
 
   useEffect(() => void (document.title = String(counter)), [counter])
 
+  const titleRef = useRef<HTMLHeadingElement>(null)
+  const counterRef = useRef<number>(counter)
+  useEffect(() => {
+    counterRef.current = counter
+  }, [counter])
+
+  const inputRef = useRef<{ focus: () => any }>(null)
+
+  useLayoutEffect(() => {
+    counter === 888 && setCounter(Math.random())
+  }, [counter])
+
+  const pageY = usePageY()
+
+  const [data, setData] = useLocalStorage('data')
+
   return (
     <UserCtx.Provider value={{ name: 'blingbling' }}>
       <ThemeCtx.Provider value={{ color: 'black' }}>
         <div>
-          <h2>Hooks</h2>
+          <h2 ref={titleRef}>Hooks</h2>
           useState: {counter}
+          <br/>
+          useRef: {counterRef.current}
           <br/>
           <Btn onClick={useCallback(() => setCounter(counter + 1), [counter])} title={'useState +1'}/>
           <Btn onClick={() => setCounter(counter - 1)} title={'useState -1'}/>
@@ -75,6 +142,14 @@ export default function Hooks () {
           useMemo: {`0 + ... + ${calc} = ${sum}`}
           <Btn onClick={() => setCalc(calc + 1)} title={'useMemo +1'}/>
           <Info info={info}/>
+          <Button onClick={() => (titleRef.current && (titleRef.current.innerHTML = 'useRef'))}>useRef</Button>
+          <HYInput ref={inputRef}/>
+          <Button onClick={() => inputRef.current && inputRef.current.focus()}>focus</Button>
+          <br/>
+          <Button onClick={() => setCounter(888)}>useLayoutEffect</Button>
+          <h2 style={{ position: 'fixed', right: '100px', top: 0 }}>{pageY}</h2>
+          <h2>{data}</h2>
+          <Button onClick={() => setData('Custom Hook')}>SetData</Button>
         </div>
       </ThemeCtx.Provider>
     </UserCtx.Provider>
